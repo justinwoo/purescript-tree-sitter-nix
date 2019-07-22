@@ -11,50 +11,6 @@ import Data.Generic.Rep (class Generic)
 import TreeSitterNix as Nix
 import TreeSitterNode.ParseNode (Childless, ManyChildren, ParseFailure, ParseNixNode, ParseSpec(..), parseFromSpec)
 
-parse :: Nix.Node -> Either (Array ParseFailure) Expr
-parse n = runExcept $ parse_ n
-
-parse_ :: ParseNixNode Expr
-parse_ n = oneOf $ map (applyFlipped n) choices
-  where
-    parse' = fix \_ -> parse_
-    choices =
-      [ parseFromSpec (ParseSpec "app" :: ParseSpec "App" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "assert" :: ParseSpec "Assert" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "attrpath" :: ParseSpec "Attrpath" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "attrs" :: ParseSpec "Attrs" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "attrset" :: ParseSpec "Attrset" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "binary" :: ParseSpec "Binary" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "bind" :: ParseSpec "Bind" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "binds" :: ParseSpec "Binds" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "expression" :: ParseSpec "Expression" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "formal" :: ParseSpec "Formal" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "formals" :: ParseSpec "Formals" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "function" :: ParseSpec "Function" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "if" :: ParseSpec "If" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "indented_string" :: ParseSpec "IndentedString" Childless) parse'
-      , parseFromSpec (ParseSpec "inherit" :: ParseSpec "Inherit" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "interpolation" :: ParseSpec "Interpolation" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "let" :: ParseSpec "Let" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "let_attrset" :: ParseSpec "LetAttrset" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "list" :: ParseSpec "List" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "parenthesized" :: ParseSpec "Parenthesized" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "rec_attrset" :: ParseSpec "RecAttrset" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "select" :: ParseSpec "Select" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "string" :: ParseSpec "StringValue" Childless) parse'
-      , parseFromSpec (ParseSpec "unary" :: ParseSpec "Unary" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "with" :: ParseSpec "With" ManyChildren) parse'
-      , parseFromSpec (ParseSpec "identifier" :: ParseSpec "Identifier" Childless) parse'
-      , parseFromSpec (ParseSpec "integer" :: ParseSpec "Integer" Childless) parse'
-      , parseFromSpec (ParseSpec "float" :: ParseSpec "Float" Childless) parse'
-      , parseFromSpec (ParseSpec "path" :: ParseSpec "Path" Childless) parse'
-      , parseFromSpec (ParseSpec "hpath" :: ParseSpec "Hpath" Childless) parse'
-      , parseFromSpec (ParseSpec "spath" :: ParseSpec "Spath" Childless) parse'
-      , parseFromSpec (ParseSpec "uri" :: ParseSpec "Uri" Childless) parse'
-      , parseFromSpec (ParseSpec "ellipses" :: ParseSpec "Ellipses" Childless) parse'
-      , parseFromSpec (ParseSpec "comment" :: ParseSpec "Comment" Childless) parse'
-      ]
-
 data Expr
   = App (Array Expr)
   | Assert (Array Expr)
@@ -91,3 +47,47 @@ data Expr
   | Ellipses String
   | Comment String
 derive instance genericExpr :: Generic Expr _
+
+parse :: Nix.Node -> Either (Array ParseFailure) Expr
+parse n = runExcept $ parse_ n
+
+parse_ :: ParseNixNode Expr
+parse_ n = oneOf $ map (applyFlipped n) choices
+  where
+    parse' = fix \_ -> parse_
+    choices =
+      [ parseFromSpec (ParseSpec App "app" :: ParseSpec "App"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec Assert "assert" :: ParseSpec "Assert"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec Attrpath "attrpath" :: ParseSpec "Attrpath"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec Attrs "attrs" :: ParseSpec "Attrs"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec Attrset "attrset" :: ParseSpec "Attrset"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec Binary "binary" :: ParseSpec "Binary"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec Bind "bind" :: ParseSpec "Bind"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec Binds "binds" :: ParseSpec "Binds"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec Expression "expression" :: ParseSpec "Expression"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec Formal "formal" :: ParseSpec "Formal"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec Formals "formals" :: ParseSpec "Formals"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec Function "function" :: ParseSpec "Function"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec If "if" :: ParseSpec "If"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec IndentedString "indented_string" :: ParseSpec "IndentedString"  Childless (String -> Expr)) parse'
+      , parseFromSpec (ParseSpec Inherit "inherit" :: ParseSpec "Inherit"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec Interpolation "interpolation" :: ParseSpec "Interpolation"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec Let "let" :: ParseSpec "Let"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec LetAttrset "let_attrset" :: ParseSpec "LetAttrset"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec List "list" :: ParseSpec "List"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec Parenthesized "parenthesized" :: ParseSpec "Parenthesized"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec RecAttrset "rec_attrset" :: ParseSpec "RecAttrset"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec Select "select" :: ParseSpec "Select"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec StringValue "string" :: ParseSpec "StringValue"  Childless (String -> Expr)) parse'
+      , parseFromSpec (ParseSpec Unary "unary" :: ParseSpec "Unary"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec With "with" :: ParseSpec "With"  ManyChildren (Array Expr -> Expr)) parse'
+      , parseFromSpec (ParseSpec Identifier "identifier" :: ParseSpec "Identifier"  Childless (String -> Expr)) parse'
+      , parseFromSpec (ParseSpec Integer "integer" :: ParseSpec "Integer"  Childless (String -> Expr)) parse'
+      , parseFromSpec (ParseSpec Float "float" :: ParseSpec "Float"  Childless (String -> Expr)) parse'
+      , parseFromSpec (ParseSpec Path "path" :: ParseSpec "Path"  Childless (String -> Expr)) parse'
+      , parseFromSpec (ParseSpec Hpath "hpath" :: ParseSpec "Hpath"  Childless (String -> Expr)) parse'
+      , parseFromSpec (ParseSpec Spath "spath" :: ParseSpec "Spath"  Childless (String -> Expr)) parse'
+      , parseFromSpec (ParseSpec Uri "uri" :: ParseSpec "Uri"  Childless (String -> Expr)) parse'
+      , parseFromSpec (ParseSpec Ellipses "ellipses" :: ParseSpec "Ellipses"  Childless (String -> Expr)) parse'
+      , parseFromSpec (ParseSpec Comment "comment" :: ParseSpec "Comment"  Childless (String -> Expr)) parse'
+      ]

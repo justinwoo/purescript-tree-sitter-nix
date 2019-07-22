@@ -45,15 +45,39 @@ printDatatypes xs = "data Expr" <> "\n  = " <> Array.intercalate "\n  | " (print
       ManyChildren -> r.name <> " (Array Expr)"
 
 printParseSpecs :: Array Datatype -> String
-printParseSpecs xs = Array.intercalate "\n" (print <$> xs)
+printParseSpecs xs = lines <> choices
   where
+    lines = Array.intercalate "\n"
+      [ "parse :: Nix.Node -> Either (Array ParseFailure) Expr"
+      , "parse n = runExcept $ parse_ n"
+      , ""
+      , "parse_ :: ParseNixNode Expr"
+      , "parse_ n = oneOf $ map (applyFlipped n) choices"
+      , "  where"
+      , "    parse' = fix \\_ -> parse_"
+      ]
+
+    choices = "\n    choices =\n      [ "
+      <> Array.intercalate "\n      , " (print <$> xs)
+      <> "\n      ]"
+
     printChildKind k = case k of
-      Childless -> " Childless"
-      OneChild -> " OneChild"
-      ManyChildren -> " ManyChildren"
+      Childless -> " Childless (String -> Expr))"
+      OneChild -> " OneChild (Expr -> Expr))"
+      ManyChildren -> " ManyChildren (Array Expr -> Expr))"
 
     print (Datatype k r) = do
-      "ParseSpec " <> quoted r.typeName <> " :: ParseSpec " <> quoted r.name <> printChildKind k
+      Array.intercalate " "
+        [ "parseFromSpec"
+        , "(ParseSpec"
+        , r.name
+        , quoted r.typeName
+        , "::"
+        , "ParseSpec"
+        , quoted r.name
+        , printChildKind k
+        , "parse'"
+        ]
 
 quoted :: String -> String
 quoted s = "\"" <> s <> "\""
