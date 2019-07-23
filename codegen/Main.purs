@@ -20,14 +20,14 @@ main = Aff.launchAff_ do
   let expr = printDatatypes datatypes
   let parse = printParseSpecs datatypes
   let output = template { expr, parse }
-  let path = "test/Expr.purs"
+  let path = "src/generated/Expr.purs"
 
   writeTextFile UTF8 path output
 
   log $ "wrote to " <> path
 
 template :: { expr :: String, parse :: String } -> String
-template { expr, parse } = """module Test.Expr where
+template { expr, parse } = """module TreeSitterNix.Expr where
 
 import Prelude
 

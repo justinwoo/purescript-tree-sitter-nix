@@ -9,7 +9,7 @@ import Effect.Class (liftEffect)
 import Effect.Class.Console (log)
 import Node.Encoding (Encoding(..))
 import Node.FS.Aff (readTextFile)
-import Test.Expr as Expr
+import TreeSitterNix.Expr as Expr
 import TreeSitterNix as Nix
 import Unsafe.Coerce (unsafeCoerce)
 

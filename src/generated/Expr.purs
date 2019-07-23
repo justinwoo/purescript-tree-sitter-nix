@@ -1,4 +1,4 @@
-module Test.Expr where
+module TreeSitterNix.Expr where
 
 import Prelude
 
