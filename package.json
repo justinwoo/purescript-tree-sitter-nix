@@ -7,7 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "codegen": "spago -x codegen.dhall run",
+    "format": "fd -e dhall -x dhall format --inplace {} --ascii",
+    "test": "spago test"
   },
   "author": "",
   "license": "MIT",
